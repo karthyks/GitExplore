@@ -35,10 +35,10 @@ public class GithubLoginTransaction extends Transaction<String, String> {
                 .post(RequestBody.create(JSON, ""))
                 .build();
         Response response = client.newCall(request).execute();
-        String result = response.body().string();
+        String res = response.body().string();
         response.close();
-        Log.d(TAG, "execute: " + result);
-        JsonObject jsonObject = new JsonParser().parse(result).getAsJsonObject();
+        Log.d(TAG, "execute: " + res);
+        JsonObject jsonObject = new JsonParser().parse(res).getAsJsonObject();
         result = jsonObject.get("access_token").getAsString();
     }
 }
