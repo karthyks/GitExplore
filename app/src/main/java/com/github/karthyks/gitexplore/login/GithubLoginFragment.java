@@ -27,12 +27,15 @@ import static com.github.karthyks.gitexplore.BuildConfig.GITHUB_CLIENT_ID;
 public class GithubLoginFragment extends CustomFragment<LoginActivity> implements ILoginListener {
 
     private static final String TAG = GithubLoginFragment.class.getSimpleName();
+    public static final String LOGIN_URL = "https://github.com/login/oauth/authorize?client_id="
+            + GITHUB_CLIENT_ID + "&redirect_uri=" + GITHUB_CALLBACK_URI;
 
     public static GithubLoginFragment getFragment() {
         return new GithubLoginFragment();
     }
 
     private GithubLoginTask loginTask;
+    private WebView webViewGithub;
 
     @Nullable
     @Override
@@ -44,11 +47,10 @@ public class GithubLoginFragment extends CustomFragment<LoginActivity> implement
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        WebView webViewGithub = view.findViewById(R.id.webview_github);
+        webViewGithub = view.findViewById(R.id.webview_github);
         webViewGithub.setWebViewClient(new GithubLoginClient());
         webViewGithub.getSettings().setJavaScriptEnabled(true);
-        webViewGithub.loadUrl("https://github.com/login/oauth/authorize?client_id="
-                + GITHUB_CLIENT_ID + "&redirect_uri=" + GITHUB_CALLBACK_URI);
+        webViewGithub.loadUrl(LOGIN_URL);
     }
 
     @Override
@@ -60,7 +62,7 @@ public class GithubLoginFragment extends CustomFragment<LoginActivity> implement
 
     @Override
     public void onFailure() {
-
+        startActivity(new Intent(getContext(), SplashActivity.class));
     }
 
 
@@ -76,7 +78,7 @@ public class GithubLoginFragment extends CustomFragment<LoginActivity> implement
             super.onPageFinished(view, url);
             Log.d(TAG, "onPageFinished: " + url);
             URI uri = URI.create(url);
-            if (uri.getQuery().contains("code")) {
+            if (uri.getQuery() != null && uri.getQuery().contains("code")) {
                 String code = uri.getQuery().split("=")[1];
                 Log.d(TAG, "onPageFinished: code " + code);
                 if (loginTask != null) loginTask.cancel(true);
