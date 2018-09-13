@@ -83,12 +83,20 @@ public class Repository {
         return stars;
     }
 
+    public String getStarsCount() {
+        return "" + stars;
+    }
+
     public void setStars(int stars) {
         this.stars = stars;
     }
 
     public int getWatchers() {
         return watchers;
+    }
+
+    public String getWatchersCount() {
+        return "" + watchers;
     }
 
     public void setWatchers(int watchers) {

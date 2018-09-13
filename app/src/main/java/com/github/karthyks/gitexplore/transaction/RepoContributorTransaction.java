@@ -4,10 +4,12 @@ import android.util.Log;
 
 import com.github.karthyks.gitexplore.model.Contributor;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 
 import okhttp3.HttpUrl;
@@ -42,6 +44,22 @@ public class RepoContributorTransaction extends GithubTransaction<String, List<C
         Response response = client.newCall(request).execute();
         String res = response.body().string();
         JsonElement jsonResponse = new JsonParser().parse(res);
+        Gson gson = new Gson();
+        List<Contributor> contributors = new LinkedList<>();
+        Log.d(TAG, "execute: " + response.code());
+        if (response.code() == 403) {
+            result = new LinkedList<>();
+            return;
+        }
+        for (JsonElement jsonElement : jsonResponse.getAsJsonArray()) {
+            try {
+                Contributor contributor = gson.fromJson(jsonElement, Contributor.class);
+                contributors.add(contributor);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         Log.d(TAG, "execute: " + jsonResponse);
+        result = contributors;
     }
 }

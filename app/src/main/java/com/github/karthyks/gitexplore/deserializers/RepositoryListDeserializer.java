@@ -1,5 +1,7 @@
 package com.github.karthyks.gitexplore.deserializers;
 
+import android.util.Log;
+
 import com.github.karthyks.gitexplore.model.Repository;
 import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
@@ -12,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class RepositoryListDeserializer implements JsonDeserializer<List<Repository>> {
+    public static final String TAG = RepositoryListDeserializer.class.getSimpleName();
 
     @Override
     public List<Repository> deserialize(JsonElement json, Type typeOfT,
@@ -23,6 +26,7 @@ public class RepositoryListDeserializer implements JsonDeserializer<List<Reposit
         if (itemsElement == null) return repositories;
         for (JsonElement item : itemsElement.getAsJsonArray()) {
             try {
+                Log.d(TAG, "deserialize: " + item.getAsJsonObject().get("stargazers_count"));
                 Repository repository = gson.fromJson(item, Repository.class);
                 repositories.add(repository);
             } catch (Exception e) {

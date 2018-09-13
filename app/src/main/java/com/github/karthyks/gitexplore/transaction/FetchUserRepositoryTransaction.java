@@ -1,5 +1,7 @@
 package com.github.karthyks.gitexplore.transaction;
 
+import android.util.Log;
+
 import com.github.karthyks.gitexplore.deserializers.RepositoryListDeserializer;
 import com.github.karthyks.gitexplore.model.PageLink;
 import com.github.karthyks.gitexplore.model.Repository;
@@ -12,19 +14,15 @@ import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.net.URL;
-import java.net.URLDecoder;
 import java.util.List;
 
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class SearchRepoTransaction extends GithubTransaction<String, RepositoryPage> {
-    private static final String TAG = SearchRepoTransaction.class.getSimpleName();
-    private static final String PER_PAGE_LIMIT = "10";
+public class FetchUserRepositoryTransaction extends GithubTransaction<String, RepositoryPage> {
 
-    public SearchRepoTransaction(FirebaseAuth firebaseAuth) {
+    public FetchUserRepositoryTransaction(FirebaseAuth firebaseAuth) {
         super(firebaseAuth);
     }
 
@@ -33,16 +31,13 @@ public class SearchRepoTransaction extends GithubTransaction<String, RepositoryP
         super.execute(params);
         httpUrl = HttpUrl.parse(BASE_URL)
                 .newBuilder()
-                .addPathSegment("search")
-                .addPathSegment("repositories")
-                .addQueryParameter("q", params[0])
-                .addQueryParameter("per_page", PER_PAGE_LIMIT)
-                .addQueryParameter("page", params.length < 2 ? "1" : params[1])
-                .addQueryParameter("sort", "stars")
+                .addPathSegment("users")
+                .addPathSegment(params[0])
+                .addPathSegment("repos")
                 .build();
+        Log.d(TAG, "execute:ContriURL " + httpUrl.toString());
         Request request = new Request.Builder()
                 .addHeader("Authorization", accessToken)
-                .addHeader("Accept", "application/vnd.github.mercy-preview+json")
                 .url(httpUrl)
                 .build();
         Response response = client.newCall(request).execute();
@@ -53,10 +48,10 @@ public class SearchRepoTransaction extends GithubTransaction<String, RepositoryP
         builder.registerTypeAdapter(type, new RepositoryListDeserializer());
         RepositoryPage repositoryPage = new RepositoryPage();
         repositoryPage.repositories = builder.create().fromJson(jsonResponse, type);
-       /* RepoContributorTransaction contributorTransaction = new RepoContributorTransaction(FirebaseAuth.getInstance());
+        RepoContributorTransaction contributorTransaction = new RepoContributorTransaction(FirebaseAuth.getInstance());
         for (Repository repository : repositoryPage.repositories) {
             contributorTransaction.execute("" + repository.getFullName());
-        }*/
+        }
         repositoryPage.pageLink = PageLink.fromLinkHeader(response.header("Link"));
         result = repositoryPage;
     }
