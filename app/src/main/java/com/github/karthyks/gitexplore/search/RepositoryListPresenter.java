@@ -50,6 +50,11 @@ public class RepositoryListPresenter implements IRepositoryListPresenter, ISearc
         lastRepoPage = repositoryPage;
     }
 
+    @Override
+    public void onErrorSearch() {
+        repoListView.getHostingActivity().showMessage("Something went wrong!");
+    }
+
     private static class SearchRepoTask extends AsyncTask<String, Void, RepositoryPage> {
 
         private static final String TAG = SearchRepoTask.class.getSimpleName();
@@ -77,9 +82,13 @@ public class RepositoryListPresenter implements IRepositoryListPresenter, ISearc
 
         @Override
         protected void onPostExecute(RepositoryPage repositoryPage) {
-            if (listener != null && repositoryPage != null && repositoryPage.repositories != null) {
-                Log.d(TAG, "onPostExecute:hasNext " + repositoryPage.pageLink.hasNext);
-                listener.onSearchResult(repositoryPage);
+            if (listener != null) {
+                if (repositoryPage != null && repositoryPage.repositories != null) {
+                    Log.d(TAG, "onPostExecute:hasNext " + repositoryPage.pageLink.hasNext);
+                    listener.onSearchResult(repositoryPage);
+                } else {
+                    listener.onErrorSearch();
+                }
             }
         }
     }

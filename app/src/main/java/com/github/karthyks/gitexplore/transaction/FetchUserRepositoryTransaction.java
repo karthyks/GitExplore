@@ -1,7 +1,5 @@
 package com.github.karthyks.gitexplore.transaction;
 
-import android.util.Log;
-
 import com.github.karthyks.gitexplore.deserializers.RepositoryListDeserializer;
 import com.github.karthyks.gitexplore.model.PageLink;
 import com.github.karthyks.gitexplore.model.Repository;
@@ -35,7 +33,6 @@ public class FetchUserRepositoryTransaction extends GithubTransaction<String, Re
                 .addPathSegment(params[0])
                 .addPathSegment("repos")
                 .build();
-        Log.d(TAG, "execute:ContriURL " + httpUrl.toString());
         Request request = new Request.Builder()
                 .addHeader("Authorization", accessToken)
                 .url(httpUrl)
@@ -48,10 +45,6 @@ public class FetchUserRepositoryTransaction extends GithubTransaction<String, Re
         builder.registerTypeAdapter(type, new RepositoryListDeserializer());
         RepositoryPage repositoryPage = new RepositoryPage();
         repositoryPage.repositories = builder.create().fromJson(jsonResponse, type);
-        RepoContributorTransaction contributorTransaction = new RepoContributorTransaction(FirebaseAuth.getInstance());
-        for (Repository repository : repositoryPage.repositories) {
-            contributorTransaction.execute("" + repository.getFullName());
-        }
         repositoryPage.pageLink = PageLink.fromLinkHeader(response.header("Link"));
         result = repositoryPage;
     }

@@ -16,11 +16,13 @@ import com.github.karthyks.gitexplore.frameworks.CustomActivity;
 import com.github.karthyks.gitexplore.model.Contributor;
 import com.github.karthyks.gitexplore.model.Repository;
 import com.github.karthyks.gitexplore.transaction.RepoContributorTransaction;
+import com.github.karthyks.gitexplore.user.UserInfoActivity;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
 
-public class RepoDetailActivity extends CustomActivity implements IRepoDetailView {
+public class RepoDetailActivity extends CustomActivity implements IRepoDetailView,
+        ContributorListAdapter.OnContributorClickListener {
     public static final String EXTRA_REPOSITORY = "extra_repository";
 
     private RepoDetailViewHolder viewHolder;
@@ -65,6 +67,16 @@ public class RepoDetailActivity extends CustomActivity implements IRepoDetailVie
         startActivity(WebActivity.getIntent(url, this));
     }
 
+    @Override
+    public void onContributorClick(Contributor contributor) {
+        if (contributor.getLogin() == null
+                || Contributor.DEFAULT_LOGIN.equals(contributor.getLogin())) {
+            showMessage("User unavailable!");
+            return;
+        }
+        startActivity(UserInfoActivity.getIntent(contributor, this));
+    }
+
     public class RepoDetailViewHolder {
         private TextView tvRepoDesc;
         private TextView tvRepoUrl;
@@ -72,7 +84,7 @@ public class RepoDetailActivity extends CustomActivity implements IRepoDetailVie
 
         private ContributorListAdapter listAdapter;
 
-        public RepoDetailViewHolder() {
+        RepoDetailViewHolder() {
             tvRepoDesc = findViewById(R.id.tv_repo_desc);
             tvRepoUrl = findViewById(R.id.tv_repo_url);
             tvRepoUrl.setOnClickListener(new View.OnClickListener() {
@@ -86,15 +98,16 @@ public class RepoDetailActivity extends CustomActivity implements IRepoDetailVie
                     4, LinearLayoutManager.HORIZONTAL, false));
             listAdapter = new ContributorListAdapter(LayoutInflater.from(RepoDetailActivity.this),
                     null);
+            listAdapter.setContributorClickListener(RepoDetailActivity.this);
             rvContributors.setAdapter(listAdapter);
         }
 
-        public void populateDetails(Repository repository) {
+        void populateDetails(Repository repository) {
             tvRepoDesc.setText(repository.getDescription());
             tvRepoUrl.setText(repository.getUrlToView());
         }
 
-        public void populateContributors(List<Contributor> contributors) {
+        void populateContributors(List<Contributor> contributors) {
             listAdapter.swapItems(contributors);
         }
     }

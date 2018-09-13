@@ -21,6 +21,7 @@ public class ContributorListAdapter extends RecyclerView.Adapter<ContributorList
     private LayoutInflater inflater;
     @Nullable
     private List<Contributor> contributors;
+    private OnContributorClickListener contributorClickListener;
 
     public ContributorListAdapter(LayoutInflater inflater, @Nullable List<Contributor> contributors) {
         this.inflater = inflater;
@@ -40,6 +41,10 @@ public class ContributorListAdapter extends RecyclerView.Adapter<ContributorList
         }
     }
 
+    public void setContributorClickListener(OnContributorClickListener contributorClickListener) {
+        this.contributorClickListener = contributorClickListener;
+    }
+
     @Override
     public int getItemCount() {
         return contributors == null ? 0 : contributors.size();
@@ -55,7 +60,7 @@ public class ContributorListAdapter extends RecyclerView.Adapter<ContributorList
         notifyDataSetChanged();
     }
 
-    class ContributorViewHolder extends RecyclerView.ViewHolder {
+    class ContributorViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private TextView tvContributor;
         private ImageView imgContributor;
@@ -63,6 +68,7 @@ public class ContributorListAdapter extends RecyclerView.Adapter<ContributorList
 
         ContributorViewHolder(View itemView) {
             super(itemView);
+            itemView.setOnClickListener(this);
             tvContributor = itemView.findViewById(R.id.tv_contributor);
             imgContributor = itemView.findViewById(R.id.img_contributor);
             tvContributions = itemView.findViewById(R.id.tv_contributions);
@@ -73,5 +79,16 @@ public class ContributorListAdapter extends RecyclerView.Adapter<ContributorList
             tvContributor.setText(contributor.getLogin());
             tvContributions.setText(contributor.getContributionCount());
         }
+
+        @Override
+        public void onClick(View view) {
+            if (contributorClickListener != null && contributors != null) {
+                contributorClickListener.onContributorClick(contributors.get(getAdapterPosition()));
+            }
+        }
+    }
+
+    public interface OnContributorClickListener {
+        void onContributorClick(Contributor contributor);
     }
 }

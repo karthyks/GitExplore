@@ -7,6 +7,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class Contributor implements Parcelable {
     public static final String DEFAULT_AVATAR = "https://avatars3.githubusercontent.com/u/5435082?s=88&v=4";
+    public static final String DEFAULT_LOGIN = "Anonymous";
 
     private long id;
     @SerializedName("node_id")
@@ -87,7 +88,7 @@ public class Contributor implements Parcelable {
     }
 
     public String getLogin() {
-        return (login == null || login.isEmpty()) ? "Anonymous" : login;
+        return (login == null || login.isEmpty()) ? DEFAULT_LOGIN : login;
     }
 
     public void setLogin(String login) {

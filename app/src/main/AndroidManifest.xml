@@ -43,6 +43,7 @@
         </activity>
         <activity android:name=".repository.RepoDetailActivity" />
         <activity android:name=".repository.WebActivity" />
+        <activity android:name=".user.UserInfoActivity" />
     </application>
 
 </manifest>
