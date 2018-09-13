@@ -41,6 +41,8 @@
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
         </activity>
+        <activity android:name=".repository.RepoDetailActivity" />
+        <activity android:name=".repository.WebActivity" />
     </application>
 
 </manifest>

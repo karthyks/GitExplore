@@ -2,4 +2,7 @@
     <string name="app_name">GitExplore</string>
     <string name="search_title">Search</string>
     <string name="search_hint">Search Repository</string>
+    <string name="owner">Owner</string>
+    <string name="link">Link</string>
+    <string name="contributors">Contributors:</string>
 </resources>

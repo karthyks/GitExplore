@@ -1,6 +1,7 @@
 package com.github.karthyks.gitexplore.frameworks;
 
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
 public abstract class CustomActivity extends AppCompatActivity {
 
@@ -19,5 +20,9 @@ public abstract class CustomActivity extends AppCompatActivity {
         if (alertDialog != null) {
             alertDialog.dismissAlertDialog();
         }
+    }
+
+    public void showMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }

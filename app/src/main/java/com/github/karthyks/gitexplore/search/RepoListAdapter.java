@@ -19,10 +19,15 @@ public class RepoListAdapter extends RecyclerView.Adapter<RepoListAdapter.RepoVi
 
     private LayoutInflater inflater;
     private List<Repository> repositories;
+    private IRepoClickListener clickListener;
 
     public RepoListAdapter(LayoutInflater inflater, @Nullable List<Repository> repositories) {
         this.inflater = inflater;
         this.repositories = repositories;
+    }
+
+    public void setOnRepoClickListener(IRepoClickListener clickListener) {
+        this.clickListener = clickListener;
     }
 
     @NonNull
@@ -52,7 +57,7 @@ public class RepoListAdapter extends RecyclerView.Adapter<RepoListAdapter.RepoVi
         return repositories == null ? 0 : repositories.size();
     }
 
-    public class RepoViewHolder extends RecyclerView.ViewHolder {
+    public class RepoViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private TextView tvRepoTitle;
         private TextView tvRepoFullName;
@@ -67,6 +72,7 @@ public class RepoListAdapter extends RecyclerView.Adapter<RepoListAdapter.RepoVi
             imgContributor = itemView.findViewById(R.id.img_contributor);
             tvContributor = itemView.findViewById(R.id.tv_contributor);
             tvWatchersCount = itemView.findViewById(R.id.tv_watchers_count);
+            itemView.setOnClickListener(this);
         }
 
         public void updateRepoDetails(Repository repository) {
@@ -76,5 +82,16 @@ public class RepoListAdapter extends RecyclerView.Adapter<RepoListAdapter.RepoVi
             tvWatchersCount.setText(repository.getWatchersCount());
             Picasso.get().load(repository.getContributor().getAvatarUrl()).into(imgContributor);
         }
+
+        @Override
+        public void onClick(View view) {
+            if (clickListener != null) {
+                clickListener.onRepositoryClick(repositories.get(getAdapterPosition()));
+            }
+        }
+    }
+
+    public interface IRepoClickListener {
+        void onRepositoryClick(Repository repository);
     }
 }

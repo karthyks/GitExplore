@@ -1,8 +1,11 @@
 package com.github.karthyks.gitexplore.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
-public class Repository {
+public class Repository implements Parcelable {
 
     private long id;
     @SerializedName("node_id")
@@ -12,6 +15,8 @@ public class Repository {
     private String fullName;
     private String description;
     private String url;
+    @SerializedName("html_url")
+    private String httpUrl;
     private String language;
     @SerializedName("stargazers_count")
     private int stars;
@@ -22,6 +27,54 @@ public class Repository {
     private double score;
     @SerializedName("owner")
     private Contributor contributor;
+
+    protected Repository(Parcel in) {
+        id = in.readLong();
+        nodeId = in.readString();
+        name = in.readString();
+        fullName = in.readString();
+        description = in.readString();
+        url = in.readString();
+        httpUrl = in.readString();
+        language = in.readString();
+        stars = in.readInt();
+        watchers = in.readInt();
+        forks = in.readInt();
+        score = in.readDouble();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id);
+        dest.writeString(nodeId);
+        dest.writeString(name);
+        dest.writeString(fullName);
+        dest.writeString(description);
+        dest.writeString(url);
+        dest.writeString(httpUrl);
+        dest.writeString(language);
+        dest.writeInt(stars);
+        dest.writeInt(watchers);
+        dest.writeInt(forks);
+        dest.writeDouble(score);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<Repository> CREATOR = new Creator<Repository>() {
+        @Override
+        public Repository createFromParcel(Parcel in) {
+            return new Repository(in);
+        }
+
+        @Override
+        public Repository[] newArray(int size) {
+            return new Repository[size];
+        }
+    };
 
     public long getId() {
         return id;
@@ -65,6 +118,11 @@ public class Repository {
 
     public String getUrl() {
         return url;
+    }
+
+    public String getUrlToView() {
+        if (httpUrl == null) return "";
+        return httpUrl.length() > 35 ? httpUrl.substring(0, 35) + "..." : httpUrl;
     }
 
     public void setUrl(String url) {
@@ -125,5 +183,9 @@ public class Repository {
 
     public void setContributor(Contributor contributor) {
         this.contributor = contributor;
+    }
+
+    public String getHttpUrl() {
+        return httpUrl;
     }
 }

@@ -35,8 +35,6 @@ public class RepoContributorTransaction extends GithubTransaction<String, List<C
                 .addPathSegment("contributors")
                 .addQueryParameter("anon", "1")
                 .build();
-        Log.d(TAG, "execute: " + params[0]);
-        Log.d(TAG, "execute:ContriURL " + httpUrl.toString());
         Request request = new Request.Builder()
                 .addHeader("Authorization", accessToken)
                 .url(httpUrl)
@@ -46,7 +44,6 @@ public class RepoContributorTransaction extends GithubTransaction<String, List<C
         JsonElement jsonResponse = new JsonParser().parse(res);
         Gson gson = new Gson();
         List<Contributor> contributors = new LinkedList<>();
-        Log.d(TAG, "execute: " + response.code());
         if (response.code() == 403) {
             result = new LinkedList<>();
             return;
@@ -56,10 +53,9 @@ public class RepoContributorTransaction extends GithubTransaction<String, List<C
                 Contributor contributor = gson.fromJson(jsonElement, Contributor.class);
                 contributors.add(contributor);
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.d(TAG, "execute:Error " + jsonElement.toString());
             }
         }
-        Log.d(TAG, "execute: " + jsonResponse);
         result = contributors;
     }
 }

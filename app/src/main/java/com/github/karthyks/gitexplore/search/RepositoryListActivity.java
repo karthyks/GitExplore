@@ -16,12 +16,13 @@ import com.github.karthyks.gitexplore.R;
 import com.github.karthyks.gitexplore.frameworks.CustomActivity;
 import com.github.karthyks.gitexplore.frameworks.EndlessRecyclerViewScrollListener;
 import com.github.karthyks.gitexplore.model.Repository;
+import com.github.karthyks.gitexplore.repository.RepoDetailActivity;
 import com.github.karthyks.gitexplore.transaction.SearchRepoTransaction;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
 
-public class RepositoryListActivity extends CustomActivity implements IRepoListView {
+public class RepositoryListActivity extends CustomActivity implements IRepoListView, RepoListAdapter.IRepoClickListener {
 
     private static final String TAG = RepositoryListActivity.class.getSimpleName();
 
@@ -40,6 +41,7 @@ public class RepositoryListActivity extends CustomActivity implements IRepoListV
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         rvRepoList.setLayoutManager(linearLayoutManager);
         repoListAdapter = new RepoListAdapter(LayoutInflater.from(this), null);
+        repoListAdapter.setOnRepoClickListener(this);
         rvRepoList.setAdapter(repoListAdapter);
         scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
             @Override
@@ -93,5 +95,10 @@ public class RepositoryListActivity extends CustomActivity implements IRepoListV
     @Override
     public RepositoryListActivity getHostingActivity() {
         return this;
+    }
+
+    @Override
+    public void onRepositoryClick(Repository repository) {
+        startActivity(RepoDetailActivity.getIntent(repository, this));
     }
 }
