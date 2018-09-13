@@ -14,28 +14,40 @@ import android.view.MenuInflater;
 
 import com.github.karthyks.gitexplore.R;
 import com.github.karthyks.gitexplore.frameworks.CustomActivity;
-import com.github.karthyks.gitexplore.model.RepositoryPage;
+import com.github.karthyks.gitexplore.frameworks.EndlessRecyclerViewScrollListener;
+import com.github.karthyks.gitexplore.model.Repository;
 import com.github.karthyks.gitexplore.transaction.SearchRepoTransaction;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class RepositoryListActivity extends CustomActivity {
+import java.util.List;
+
+public class RepositoryListActivity extends CustomActivity implements IRepoListView {
 
     private static final String TAG = RepositoryListActivity.class.getSimpleName();
 
     private IRepositoryListPresenter listPresenter;
 
     private RepoListAdapter repoListAdapter;
+    private EndlessRecyclerViewScrollListener scrollListener;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-        listPresenter = new RepositoryListPresenter(
+        listPresenter = new RepositoryListPresenter(this,
                 new SearchRepoTransaction(FirebaseAuth.getInstance()));
         RecyclerView rvRepoList = findViewById(R.id.rv_repo_list);
-        rvRepoList.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        rvRepoList.setLayoutManager(linearLayoutManager);
         repoListAdapter = new RepoListAdapter(LayoutInflater.from(this), null);
         rvRepoList.setAdapter(repoListAdapter);
+        scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                listPresenter.onSearchRepository();
+            }
+        };
+        rvRepoList.addOnScrollListener(scrollListener);
     }
 
     @Override
@@ -63,14 +75,23 @@ public class RepositoryListActivity extends CustomActivity {
     private void handleIntent(Intent intent) {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
-            showProgress("Please wait...");
-            listPresenter.onSearchRepository(query, new ISearchListener() {
-                @Override
-                public void onSearchResult(RepositoryPage repositoryPage) {
-                    repoListAdapter.swapItems(repositoryPage);
-                    dismissProgress();
-                }
-            });
+            listPresenter.onSearchRepository(query);
         }
+    }
+
+    @Override
+    public void showRepositories(List<Repository> repositories, boolean reset) {
+        dismissProgress();
+        if (reset) {
+            scrollListener.resetState();
+            repoListAdapter.swapItems(repositories);
+        } else {
+            repoListAdapter.appendItems(repositories);
+        }
+    }
+
+    @Override
+    public RepositoryListActivity getHostingActivity() {
+        return this;
     }
 }

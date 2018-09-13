@@ -1,5 +1,7 @@
 package com.github.karthyks.gitexplore.transaction;
 
+import android.util.Log;
+
 import com.github.karthyks.gitexplore.deserializers.RepositoryListDeserializer;
 import com.github.karthyks.gitexplore.model.PageLink;
 import com.github.karthyks.gitexplore.model.Repository;
@@ -12,8 +14,6 @@ import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.net.URL;
-import java.net.URLDecoder;
 import java.util.List;
 
 import okhttp3.HttpUrl;
@@ -45,6 +45,7 @@ public class SearchRepoTransaction extends GithubTransaction<String, RepositoryP
                 .addHeader("Accept", "application/vnd.github.mercy-preview+json")
                 .url(httpUrl)
                 .build();
+        Log.d(TAG, "execute: " + httpUrl.toString());
         Response response = client.newCall(request).execute();
         String res = response.body().string();
         JsonElement jsonResponse = new JsonParser().parse(res);

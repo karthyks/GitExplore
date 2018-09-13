@@ -11,17 +11,18 @@ import android.widget.TextView;
 
 import com.github.karthyks.gitexplore.R;
 import com.github.karthyks.gitexplore.model.Repository;
-import com.github.karthyks.gitexplore.model.RepositoryPage;
 import com.squareup.picasso.Picasso;
+
+import java.util.List;
 
 public class RepoListAdapter extends RecyclerView.Adapter<RepoListAdapter.RepoViewHolder> {
 
     private LayoutInflater inflater;
-    private RepositoryPage repositoryPage;
+    private List<Repository> repositories;
 
-    public RepoListAdapter(LayoutInflater inflater, @Nullable RepositoryPage repositoryPage) {
+    public RepoListAdapter(LayoutInflater inflater, @Nullable List<Repository> repositories) {
         this.inflater = inflater;
-        this.repositoryPage = repositoryPage;
+        this.repositories = repositories;
     }
 
     @NonNull
@@ -32,19 +33,23 @@ public class RepoListAdapter extends RecyclerView.Adapter<RepoListAdapter.RepoVi
 
     @Override
     public void onBindViewHolder(@NonNull RepoViewHolder holder, int position) {
-        if (repositoryPage == null || repositoryPage.repositories == null) return;
-        holder.updateRepoDetails(repositoryPage.repositories.get(position));
+        if (repositories == null) return;
+        holder.updateRepoDetails(repositories.get(position));
     }
 
-    public void swapItems(RepositoryPage repositoryPage) {
-        this.repositoryPage = repositoryPage;
+    public void swapItems(List<Repository> repositories) {
+        this.repositories = repositories;
         notifyDataSetChanged();
+    }
+
+    public void appendItems(List<Repository> repositories) {
+        this.repositories.addAll(repositories);
+        notifyItemRangeInserted(getItemCount(), repositories.size());
     }
 
     @Override
     public int getItemCount() {
-        return (repositoryPage == null || repositoryPage.repositories == null) ? 0
-                : repositoryPage.repositories.size();
+        return repositories == null ? 0 : repositories.size();
     }
 
     public class RepoViewHolder extends RecyclerView.ViewHolder {

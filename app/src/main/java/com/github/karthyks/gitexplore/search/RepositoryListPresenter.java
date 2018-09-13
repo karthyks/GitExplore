@@ -8,23 +8,46 @@ import com.github.karthyks.gitexplore.transaction.SearchRepoTransaction;
 
 import java.io.IOException;
 
-public class RepositoryListPresenter implements IRepositoryListPresenter {
+public class RepositoryListPresenter implements IRepositoryListPresenter, ISearchListener {
 
     private SearchRepoTask repoTask;
+    private IRepoListView repoListView;
     private SearchRepoTransaction searchRepoTransaction;
 
-    public RepositoryListPresenter(SearchRepoTransaction searchRepoTransaction) {
+    private RepositoryPage lastRepoPage;
+    private String lastQuery;
+    private boolean resetList = true;
+
+    public RepositoryListPresenter(IRepoListView repoListView,
+                                   SearchRepoTransaction searchRepoTransaction) {
+        this.repoListView = repoListView;
         this.searchRepoTransaction = searchRepoTransaction;
     }
 
     @Override
-    public void onSearchRepository(String query, ISearchListener listener) {
+    public void onSearchRepository(String... query) {
         if (repoTask != null) repoTask.cancel(true);
+        repoListView.getHostingActivity().showProgress("Please wait...");
         repoTask = new SearchRepoTask(searchRepoTransaction);
-        if (listener != null) {
-            repoTask.setSearchListener(listener);
+        repoTask.setSearchListener(this);
+        if (query == null || query.length <= 0) {
+            if (lastRepoPage.pageLink.hasNext) {
+                resetList = false;
+                repoTask.execute(lastQuery, "" + (lastRepoPage.pageLink.currentPageIndex + 1));
+            } else {
+                repoListView.getHostingActivity().dismissProgress();
+            }
+        } else {
+            lastQuery = query[0];
+            repoTask.execute(lastQuery);
+            resetList = true;
         }
-        repoTask.execute(query);
+    }
+
+    @Override
+    public void onSearchResult(RepositoryPage repositoryPage) {
+        repoListView.showRepositories(repositoryPage.repositories, resetList);
+        lastRepoPage = repositoryPage;
     }
 
     private static class SearchRepoTask extends AsyncTask<String, Void, RepositoryPage> {
@@ -44,7 +67,7 @@ public class RepositoryListPresenter implements IRepositoryListPresenter {
         @Override
         protected RepositoryPage doInBackground(String... strings) {
             try {
-                transaction.execute(strings[0]);
+                transaction.execute(strings);
                 return transaction.retrieveResult();
             } catch (IOException e) {
                 e.printStackTrace();
