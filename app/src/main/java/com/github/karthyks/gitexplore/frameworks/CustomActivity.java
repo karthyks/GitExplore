@@ -1,6 +1,6 @@
 package com.github.karthyks.gitexplore.frameworks;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.widget.Toast;
 
 public abstract class CustomActivity extends AppCompatActivity {

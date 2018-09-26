@@ -3,8 +3,6 @@ package com.github.karthyks.gitexplore;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -16,6 +14,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GithubAuthProvider;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class SplashActivity extends AppCompatActivity implements ILoginVerify {
     public static final String ACCESS_TOKEN = "access_token";
@@ -73,8 +74,16 @@ public class SplashActivity extends AppCompatActivity implements ILoginVerify {
                                 }
                             }
                         });
+            } else {
+                checkForActiveUser();
             }
-        } else if (mAuth.getCurrentUser() == null) {
+        } else {
+            checkForActiveUser();
+        }
+    }
+
+    private void checkForActiveUser() {
+        if (mAuth.getCurrentUser() == null) {
             onLoginError();
         } else {
             onSuccessfulLogin();
