@@ -18,8 +18,8 @@ import okhttp3.Response;
 
 public class RepoContributorTransaction extends GithubTransaction<String, List<Contributor>> {
 
-    public RepoContributorTransaction(FirebaseAuth firebaseAuth) {
-        super(firebaseAuth);
+    public RepoContributorTransaction(String accessToken) {
+        super(accessToken);
     }
 
     @Override
@@ -35,9 +35,7 @@ public class RepoContributorTransaction extends GithubTransaction<String, List<C
                 .addPathSegment("contributors")
                 .addQueryParameter("anon", "1")
                 .build();
-        Request request = new Request.Builder()
-                .addHeader("Authorization", accessToken)
-                .url(httpUrl)
+        Request request = getRequestBuilder()
                 .build();
         Response response = client.newCall(request).execute();
         String res = response.body().string();

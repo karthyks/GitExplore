@@ -1,35 +1,32 @@
 package com.github.karthyks.gitexplore;
 
+import android.accounts.AccountManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.github.karthyks.gitexplore.account.AppSession;
+import com.github.karthyks.gitexplore.account.AuthenticatorActivity;
+import com.github.karthyks.gitexplore.account.IUser;
 import com.github.karthyks.gitexplore.login.ILoginVerify;
 import com.github.karthyks.gitexplore.login.LoginActivity;
+import com.github.karthyks.gitexplore.model.GitUser;
 import com.github.karthyks.gitexplore.search.RepositoryListActivity;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.GithubAuthProvider;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
-public class SplashActivity extends AppCompatActivity implements ILoginVerify {
-    public static final String ACCESS_TOKEN = "access_token";
+public class SplashActivity extends AuthenticatorActivity implements ILoginVerify {
+    public static final String EXTRA_USER = "extra_user";
     private static final String TAG = SplashActivity.class.getSimpleName();
 
     private Handler accountVerifier;
-    private FirebaseAuth mAuth;
+    private AppSession appSession;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        appSession = AppSession.get(this);
         setContentView(R.layout.activity_splash);
-        mAuth = FirebaseAuth.getInstance();
         accountVerifier = new Handler(getMainLooper());
     }
 
@@ -54,39 +51,18 @@ public class SplashActivity extends AppCompatActivity implements ILoginVerify {
 
     @Override
     public void verify() {
-        if (getIntent().getExtras() != null) {
-            String accessToken = getIntent().getExtras().getString(ACCESS_TOKEN, "");
-            Log.d(TAG, "verify: " + accessToken);
-            if (!accessToken.isEmpty()) {
-                mAuth.signInWithCredential(GithubAuthProvider.getCredential(accessToken))
-                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    showMessage("Login Successful");
-                                    onSuccessfulLogin();
-                                } else if (task.isCanceled()) {
-                                    showMessage("Login canceled");
-                                    onLoginError();
-                                } else {
-                                    showMessage("Login Error");
-                                    onLoginError();
-                                }
-                            }
-                        });
-            } else {
-                checkForActiveUser();
-            }
-        } else {
-            checkForActiveUser();
+        if (appSession.getActiveAccount() != null)
+            Log.d(TAG, "verify: " + appSession.getActiveUser().getExpiryTime());
+        else {
+            Log.d(TAG, "verify: null account");
         }
-    }
-
-    private void checkForActiveUser() {
-        if (mAuth.getCurrentUser() == null) {
-            onLoginError();
+        if (appSession.hasActiveAccount()) {
+            launchApp();
+        } else if (getIntent().getParcelableExtra(EXTRA_USER) != null) {
+            GitUser gitUser = getIntent().getParcelableExtra(EXTRA_USER);
+            onSuccessfulLogin(gitUser);
         } else {
-            onSuccessfulLogin();
+            onLoginError();
         }
     }
 
@@ -95,9 +71,18 @@ public class SplashActivity extends AppCompatActivity implements ILoginVerify {
     }
 
     @Override
-    public void onSuccessfulLogin() {
-        if (mAuth.getCurrentUser() != null)
-            showMessage("Logged In " + mAuth.getCurrentUser().getDisplayName());
+    public void onSuccessfulLogin(IUser user) {
+        final Intent authResultIntent = new Intent();
+        authResultIntent.putExtra(AccountManager.KEY_ACCOUNT_NAME,
+                String.valueOf(user.getUsername()));
+        authResultIntent.putExtra(AccountManager.KEY_ACCOUNT_TYPE, AppSession.ACCOUNT_TYPE);
+        setAccountAuthenticatorResult(authResultIntent.getExtras());
+        setResult(RESULT_OK, authResultIntent);
+        launchApp();
+
+    }
+
+    private void launchApp() {
         Intent intent = new Intent(this, RepositoryListActivity.class);
         startActivity(intent);
         finish();

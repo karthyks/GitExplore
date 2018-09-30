@@ -6,4 +6,6 @@
     <string name="link">Link</string>
     <string name="contributors">Contributors:</string>
     <string name="repositories">Repositories:</string>
+    <string name="one_account_allowed">Cannot add more than one account</string>
+    <string name="sign_in_with_github">Sign in with Github</string>
 </resources>

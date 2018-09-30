@@ -24,8 +24,8 @@ public class SearchRepoTransaction extends GithubTransaction<String, RepositoryP
     private static final String TAG = SearchRepoTransaction.class.getSimpleName();
     private static final String PER_PAGE_LIMIT = "10";
 
-    public SearchRepoTransaction(FirebaseAuth firebaseAuth) {
-        super(firebaseAuth);
+    public SearchRepoTransaction(String accessToken) {
+        super(accessToken);
     }
 
     @Override
@@ -40,8 +40,7 @@ public class SearchRepoTransaction extends GithubTransaction<String, RepositoryP
                 .addQueryParameter("page", params.length < 2 ? "1" : params[1])
                 .addQueryParameter("sort", "stars")
                 .build();
-        Request request = new Request.Builder()
-                .addHeader("Authorization", accessToken)
+        Request request = getRequestBuilder()
                 .addHeader("Accept", "application/vnd.github.mercy-preview+json")
                 .url(httpUrl)
                 .build();

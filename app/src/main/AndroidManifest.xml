@@ -3,6 +3,12 @@
     package="com.github.karthyks.gitexplore">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission
+        android:name="android.permission.MANAGE_ACCOUNTS"
+        android:maxSdkVersion="22" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
 
     <application
         android:allowBackup="true"
@@ -44,6 +50,15 @@
         <activity android:name=".repository.RepoDetailActivity" />
         <activity android:name=".repository.WebActivity" />
         <activity android:name=".user.UserInfoActivity" />
+
+        <service android:name=".account.GithubAccountTypeService">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/gitexplore_authenticator" />
+        </service>
     </application>
 
 </manifest>

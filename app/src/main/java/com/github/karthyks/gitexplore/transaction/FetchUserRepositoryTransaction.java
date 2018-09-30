@@ -20,8 +20,8 @@ import okhttp3.Response;
 
 public class FetchUserRepositoryTransaction extends GithubTransaction<String, RepositoryPage> {
 
-    public FetchUserRepositoryTransaction(FirebaseAuth firebaseAuth) {
-        super(firebaseAuth);
+    public FetchUserRepositoryTransaction(String accessToken) {
+        super(accessToken);
     }
 
     @Override
@@ -33,9 +33,7 @@ public class FetchUserRepositoryTransaction extends GithubTransaction<String, Re
                 .addPathSegment(params[0])
                 .addPathSegment("repos")
                 .build();
-        Request request = new Request.Builder()
-                .addHeader("Authorization", accessToken)
-                .url(httpUrl)
+        Request request = getRequestBuilder()
                 .build();
         Response response = client.newCall(request).execute();
         String res = response.body().string();

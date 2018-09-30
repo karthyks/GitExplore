@@ -40,5 +40,6 @@ public class GithubLoginTransaction extends Transaction<String, String> {
         Log.d(TAG, "execute: " + res);
         JsonObject jsonObject = new JsonParser().parse(res).getAsJsonObject();
         result = jsonObject.get("access_token").getAsString();
+        Log.d(TAG, "execute: " + result);
     }
 }

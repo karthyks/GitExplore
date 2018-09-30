@@ -1,15 +1,7 @@
 package com.github.karthyks.gitexplore.transaction;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.GetTokenResult;
-
-import java.io.IOException;
-
 import okhttp3.HttpUrl;
+import okhttp3.Request;
 
 /**
  * @param <P> Parameter type
@@ -21,24 +13,13 @@ public abstract class GithubTransaction<P, R> extends Transaction<P, R> {
     HttpUrl httpUrl = HttpUrl.parse(BASE_URL);
     String accessToken;
 
-    public GithubTransaction(FirebaseAuth firebaseAuth) {
-        firebaseAuth.getAccessToken(false)
-                .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<GetTokenResult> task) {
-                        accessToken = task.getResult().getToken();
-                    }
-                });
+    public GithubTransaction(String accessToken) {
+        this.accessToken = accessToken;
     }
 
-    @Override
-    public void execute(P... params) throws IOException {
-        if (accessToken == null) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+    public Request.Builder getRequestBuilder() {
+        return new Request.Builder()
+                .addHeader("Authorization", "token " + accessToken)
+                .url(httpUrl);
     }
 }

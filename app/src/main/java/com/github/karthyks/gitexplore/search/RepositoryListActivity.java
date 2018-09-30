@@ -8,18 +8,24 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.SearchView;
+
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 
 import com.github.karthyks.gitexplore.R;
+import com.github.karthyks.gitexplore.account.AppSession;
 import com.github.karthyks.gitexplore.frameworks.CustomActivity;
 import com.github.karthyks.gitexplore.frameworks.EndlessRecyclerViewScrollListener;
 import com.github.karthyks.gitexplore.model.Repository;
 import com.github.karthyks.gitexplore.repository.RepoDetailActivity;
+import com.github.karthyks.gitexplore.transaction.FetchAuthenticatedUserTransaction;
 import com.github.karthyks.gitexplore.transaction.SearchRepoTransaction;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.io.IOException;
 import java.util.List;
 
 public class RepositoryListActivity extends CustomActivity implements IRepoListView, RepoListAdapter.IRepoClickListener {
@@ -36,7 +42,7 @@ public class RepositoryListActivity extends CustomActivity implements IRepoListV
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
         listPresenter = new RepositoryListPresenter(this,
-                new SearchRepoTransaction(FirebaseAuth.getInstance()));
+                new SearchRepoTransaction(AppSession.get(this).getActiveUser().getAuthToken()));
         RecyclerView rvRepoList = findViewById(R.id.rv_repo_list);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         rvRepoList.setLayoutManager(linearLayoutManager);
@@ -50,6 +56,17 @@ public class RepositoryListActivity extends CustomActivity implements IRepoListV
             }
         };
         rvRepoList.addOnScrollListener(scrollListener);
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    new FetchAuthenticatedUserTransaction(AppSession.get(RepositoryListActivity.this).getActiveUser().getAuthToken()).execute();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.start();
     }
 
     @Override

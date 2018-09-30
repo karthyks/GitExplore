@@ -3,23 +3,24 @@ package com.github.karthyks.gitexplore.repository;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
 import com.github.karthyks.gitexplore.R;
+import com.github.karthyks.gitexplore.account.AppSession;
 import com.github.karthyks.gitexplore.frameworks.CustomActivity;
 import com.github.karthyks.gitexplore.model.Contributor;
 import com.github.karthyks.gitexplore.model.Repository;
 import com.github.karthyks.gitexplore.transaction.RepoContributorTransaction;
 import com.github.karthyks.gitexplore.user.UserInfoActivity;
-import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
+
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class RepoDetailActivity extends CustomActivity implements IRepoDetailView,
         ContributorListAdapter.OnContributorClickListener {
@@ -54,7 +55,7 @@ public class RepoDetailActivity extends CustomActivity implements IRepoDetailVie
     @Override
     public void renderRepository(Repository repository) {
         viewHolder.populateDetails(repository);
-        repoDetailPresenter.fetchContributors(new RepoContributorTransaction(FirebaseAuth.getInstance()));
+        repoDetailPresenter.fetchContributors(new RepoContributorTransaction(AppSession.get(this).getActiveUser().getAuthToken()));
     }
 
     @Override

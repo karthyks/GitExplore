@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.karthyks.gitexplore.R;
+import com.github.karthyks.gitexplore.account.AppSession;
 import com.github.karthyks.gitexplore.frameworks.CustomActivity;
 import com.github.karthyks.gitexplore.model.Contributor;
 import com.github.karthyks.gitexplore.model.Repository;
@@ -60,7 +61,7 @@ public class UserInfoActivity extends CustomActivity implements IUserInfoView, R
     @Override
     public void renderUserInfo(Contributor contributor) {
         userInfoViewHolder.populateUser(contributor);
-        userInfoPresenter.fetchRepositories(new FetchUserRepositoryTransaction(FirebaseAuth.getInstance()), contributor.getLogin());
+        userInfoPresenter.fetchRepositories(new FetchUserRepositoryTransaction(AppSession.get(this).getActiveUser().getAuthToken()), contributor.getLogin());
     }
 
     @Override
