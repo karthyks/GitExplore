@@ -24,6 +24,11 @@ public class GitUser implements IUser, Parcelable {
     private long expiryTime;
     @SerializedName("avatar_url")
     private String avatarUrl;
+    @SerializedName("email")
+    private String email;
+    private String bio;
+    private String followers;
+    private String following;
     private boolean isSessionExpired = false;
 
     protected GitUser(Parcel in) {

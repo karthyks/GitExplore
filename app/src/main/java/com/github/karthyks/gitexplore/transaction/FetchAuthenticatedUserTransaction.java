@@ -26,7 +26,7 @@ public class FetchAuthenticatedUserTransaction extends GithubTransaction<Void, G
         String res = response.body().string();
         JsonElement jsonElement = new JsonParser().parse(res);
 
-        GitUser gitUser = new GitUser();
+        GitUser gitUser = gson.fromJson(jsonElement, GitUser.class);
         gitUser.setAuthToken(accessToken);
         gitUser.setUsername(jsonElement.getAsJsonObject().get("login").getAsString());
         Calendar calendar = Calendar.getInstance();
